@@ -59,7 +59,8 @@ IniValueMap parseIniString(string input)
 
   foreach(line; splitLines(input))
   {
-    if(!line.strip.length) continue;
+    line = line.strip;
+    if(!line.length || startsWith(line, ";")) continue;
     if(matchFirst(line, "=").empty) {
       if(startsWith(line, "[") && endsWith(line, "]")) {
         auto re = regex(r"\[|\]");
@@ -94,7 +95,7 @@ unittest
   assert(basicIniResult["age"].get!int == 33);
 
   //////////////////////////////////////////////////////////
-  // section values
+  // sections
   //////////////////////////////////////////////////////////
   string sectionIniPath = getcwd() ~ "/sections.ini";
   string sectionIniContent = readFileContent(sectionIniPath);
@@ -108,7 +109,7 @@ unittest
   assert(pets["cats"].get!int == 2);
 
   //////////////////////////////////////////////////////////
-  // arrays values
+  // arrays
   //////////////////////////////////////////////////////////
   string arrayValuesIniPath = getcwd() ~ "/array_values.ini";
   string arrayValuesIniContent = readFileContent(arrayValuesIniPath);
@@ -128,6 +129,17 @@ unittest
   assert(a5[2].get!int == 33);
   assert(a5[3].get!bool == true);
   assert(a5[4].get!double == 12.6);
+
+  //////////////////////////////////////////////////////////
+  // comments
+  //////////////////////////////////////////////////////////
+  string commentsIniPath = getcwd() ~ "/comments.ini";
+  string commentsIniContent = readFileContent(commentsIniPath);
+  IniValueMap commentsIniResult = parseIniString(commentsIniContent);
+
+  assert(commentsIniResult["app"].get!string == "MyApp");
+  assert(commentsIniResult["enabled"].get!bool == true);
+  assert(!("commented" in commentsIniResult));
 }
 
 void main() {}
