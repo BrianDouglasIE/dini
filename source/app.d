@@ -27,29 +27,29 @@ alias IniValueMap = IniValue[string];
 alias IniValueSum = SumType!(string, int, double, bool, IniValue[], IniValueMap);
 
 struct IniValue {
-    IniValueSum value;
+  IniValueSum value;
 
-    this(string v) { value = v; }
-    this(int v)    { value = v; }
-    this(double v) { value = v; }
-    this(bool v)   { value = v; }
-    this(IniValue[] v) { value = v; }
-    this(IniValueMap v) { value = v; }
+  this(int v)    { value = v; }
+  this(double v) { value = v; }
+  this(bool v)   { value = v; }
+  this(string v) { value = v; }
+  this(IniValue[] v) { value = v; }
+  this(IniValueMap v) { value = v; }
 
-    alias value this;
+  alias value this;
 }
 
 IniValue parseIniValue(string input) {
-    try return IniValue(to!bool(input)); catch (ConvException) {}
-    try return IniValue(to!int(input)); catch (ConvException) {}
-    try return IniValue(to!double(input)); catch (ConvException) {}
+  try return IniValue(to!int(input)); catch (ConvException) {}
+  try return IniValue(to!double(input)); catch (ConvException) {}
+  try return IniValue(to!bool(input)); catch (ConvException) {}
 
-    if (!matchFirst(input, ",").empty) {
-        auto parts = input.split(",").map!(s => parseIniValue(strip(s))).array;
-        return IniValue(parts);
-    }
+  if (!matchFirst(input, ",").empty) {
+    auto parts = input.split(",").map!(s => parseIniValue(strip(s))).array;
+    return IniValue(parts);
+  }
 
-    return IniValue(input);
+  return IniValue(input);
 }
 
 IniValueMap parseIniString(string input)
@@ -63,17 +63,18 @@ IniValueMap parseIniString(string input)
     if(!line.length || startsWith(line, ";")) continue;
     if(matchFirst(line, "=").empty) {
       if(startsWith(line, "[") && endsWith(line, "]")) {
-        auto re = regex(r"\[|\]");
-        sectionName = replaceAll(line, re, "");
+        sectionName = line[1 .. $-1];
         IniValueMap section;
         result[sectionName] = IniValue(section);
       }
       continue;
     }
 
-    string[] split = line.split("=");
-    string key = split[0].strip;
-    auto value = parseIniValue(split[1 .. $].join("").strip);
+    auto eqIndex = line.indexOf("=");
+    string key = line[0 .. eqIndex].strip;
+    string val = line[eqIndex + 1 .. $].strip;
+    auto value = parseIniValue(val);
+
     if(sectionName) result[sectionName].get!(IniValueMap)[key] = value;
     else result[key] = value;
   }
@@ -93,6 +94,7 @@ unittest
   assert(basicIniResult["firstname"].get!string == "brian");
   assert(basicIniResult["lastname"].get!string == "douglas");
   assert(basicIniResult["age"].get!int == 33);
+  assert(basicIniResult["chars"].get!string == `=\/'#'""`);
 
   //////////////////////////////////////////////////////////
   // sections
