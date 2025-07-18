@@ -1,0 +1,5 @@
+name "dini"
+description "An ini parser"
+authors "Brian Douglas"
+copyright "Copyright © 2025, Brian Douglas"
+license "BSL-1.0"

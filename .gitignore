@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/dini
+dini.so
+dini.dylib
+dini.dll
+dini.a
+dini.lib
+dini-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
